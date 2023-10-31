@@ -1,4 +1,6 @@
 // -- GLOBAL --
+const MAX_CHARS = 150;
+
 const textareaEl = document.querySelector('.form__textarea');
 const counterEl = document.querySelector('.counter');
 const formEl = document.querySelector('.form');
@@ -8,7 +10,7 @@ const submitBtntEl = document.querySelector('.submit-btn');
 // -- COUNTER COMPONENT --
 const inputHandler = () => {
    // Nustatyti maksimalu simboliu skaiciu:
-   const maxCharacters = 150;
+   const maxCharacters = MAX_CHARS;
 
    // Nustatyti siuo metu ivestu simboliu skaiciu:
    const currentlyTypedCharacters = textareaEl.value.length;
@@ -19,9 +21,19 @@ const inputHandler = () => {
    // Atvaizduoti likusiu simboliu skaiciu:
    counterEl.textContent = charactersLeft;
 }
+
 textareaEl.addEventListener('input', inputHandler);
 
 // -- FORM COMPONENT --
+const showVisualIndicator = textCheck => {
+   const className = textCheck === 'valid' ? 'form--valid' : 'form--invalid';
+   // Rodyti validzios formos stiliu
+   formEl.classList.add(className);
+
+   // Panaikinti stiliu po 2s
+   setTimeout(() => formEl.classList.remove(className), 2000);
+};
+
 const submitHandler = (event) => {
    //  Neleisti numatytojo narsykles veiksmo (puslapio persikrovimo po duomenu pasubmitinimo):
    event.preventDefault();
@@ -31,20 +43,9 @@ const submitHandler = (event) => {
 
    // Teksto validacijos (pvz.: patikrinti ar nurodytas # ir ar tekstas nera per trumpas):
    if (text.includes('#') && text.length >= 5) {
-      // Rodyti validzios formos stiliu
-      formEl.classList.add('form--valid');
-
-      // Panaikinti stiliu po 2s
-      setTimeout(() => formEl.classList.remove('form--valid'), 2000);
+      showVisualIndicator('valid');
    } else {
-      // Rodyti nevalidzios formos stiliu
-      formEl.classList.add('form--invalid');
-
-      // Panaikinti stiliu po 2s
-      setTimeout(() => {
-         formEl.classList.remove('form--invalid');
-      }, 2000);
-
+      showVisualIndicator('invalid')
       // Fokusuoti tekstine sriti
       textareaEl.focus();
 
@@ -54,11 +55,8 @@ const submitHandler = (event) => {
 
    // Dabar turime teksta, is kurio reikia istraukti kita informacija (imones pavadinimas, pirma imones pavadinimo raide, data, kada parasytas komentaras):
    const hashtag = text.split(' ').find(word => word.includes('#')); // su splitu gauname zodziu masyva, o su find, masyve ieskome zodzio, kuris turetu # simboli
-
    const companyName = hashtag.substring(1); // imanones pavadinimas be # simbolio
-
    const badgeLetter = companyName.substring(0, 1).toUpperCase(); // Gauname pirmaja kompanijos pavadinimo raide ir ja is karto paverciame didziaja raide
-
    const upVoteCount = 0;
    const daysAgo = 0;
 
@@ -91,7 +89,7 @@ const submitHandler = (event) => {
    submitBtntEl.blur();
 
    // Nuresetinamas counteris:
-   counterEl.textContent = 150;
+   counterEl.textContent = MAX_CHARS;
 }
 
 formEl.addEventListener('submit', submitHandler);
