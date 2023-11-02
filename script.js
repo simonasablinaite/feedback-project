@@ -15,7 +15,7 @@ const renderFeedbackItem = feedbackItem => {
 <li class='feedback'>
 <button class='upvote'>
 <i class='fa-solid fa-caret-up upvote__icon'></i>
-<span class='upvote__count'>${feedbackItem.upVoteCount}</span>
+<span class='upvote__count'>${feedbackItem.upvoteCount}</span>
 </button>
 
 <section class='feedback__badge'>
@@ -23,7 +23,7 @@ const renderFeedbackItem = feedbackItem => {
 </section>
 
 <div class='feedback__content'>
-<p class='feedback__company'>${feedbackItem.companyName}</p>
+<p class='feedback__company'>${feedbackItem.company}</p>
 <p class='feedback__text'>${feedbackItem.text}</p>
 </div>
 <p class='feedback__date'>${feedbackItem.daysAgo === 0 ? 'NEW' : `${feedbackItem.daysAgo}d`}</p>
@@ -129,6 +129,39 @@ const submitHandler = (event) => {
 formEl.addEventListener('submit', submitHandler);
 
 // -- FEEDBACK LIST COMPONENT --
+const clickHandler = event => {
+   // Gauti spusteleta HTML elementa:
+   const clickedEl = event.target;
+
+   // Nustatoma, ar vartotojas ketino balsuoti, ar isskleisti elementa:
+   const upvoteIntention = clickedEl.className.includes('upvote');
+
+   // Paleisti atitinkama logika:
+   if (upvoteIntention) {
+      // Gauti upvote mygtuka:
+      const upvoteBtnEl = clickedEl.closest('.upvote');
+
+      // Paspaudus upvote mygtuka, nebeleisti jo paspausti antra karta:
+      upvoteBtnEl.disabled = true;
+
+      // Pasirenkamas upvote skaiciavimas su upvote mygtuku:
+      const upvoteCountEl = upvoteBtnEl.querySelector('.upvote__count');
+
+      // Gaunamas siuo metu rodomu balsu skaicius:
+      let upvoteCount = +upvoteCountEl.textContent;
+
+      // Padidinamas balas vienu vienetu:
+      upvoteCount += 1;
+
+      // Gaunami balsai:
+      upvoteCountEl.textContent = ++upvoteCount;
+   } else {      // Isskleide spusteleta atsiliepimo elementa:
+      clickedEl.closest('.feedback').classList.toggle('feedback--expand');
+   }
+};
+
+feedbackListEl.addEventListener('click', clickHandler);
+
 fetch(`${BASE_API_URL}/feedbacks`) // GET request
    .then(response => response.json())
    .then(data => {
