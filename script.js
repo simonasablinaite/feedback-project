@@ -6,6 +6,7 @@ const counterEl = document.querySelector('.counter');
 const formEl = document.querySelector('.form');
 const feedbackListEl = document.querySelector('.feedbacks');
 const submitBtntEl = document.querySelector('.submit-btn');
+const spinnerEl = document.querySelector('.spinner');
 
 // -- COUNTER COMPONENT --
 const inputHandler = () => {
@@ -60,28 +61,6 @@ const submitHandler = (event) => {
    const upVoteCount = 0;
    const daysAgo = 0;
 
-   // Naujas komentaro elementas HTML'e:
-   const feedbackItemHTML = `
-   <li class='feedback'>
-   <button class='upvote'>
-   <i class='fa-solid fa-caret-up upvote__icon'></i>
-   <span class='upvote__count'>${upVoteCount}</span>
-   </button>
-
-   <section class='feedback__badge'>
-   <p class='feedback__letter'>${badgeLetter}</p>
-   </section>
-
-   <div class='feedback__content'>
-   <p class='feedback__company'>${companyName}</p>
-   <p class='feedback__text'>${text}</p>
-   </div>
-   <p class='feedback__date'>${daysAgo === 0 ? 'NEW' : `${daysAgo}d`}</p>
-   </li>
-   `
-   // Naujo komentaro iterpimas i sarasa:
-   feedbackListEl.insertAdjacentHTML('beforeend', feedbackItemHTML);
-
    // Textarea laukelio isvalymas po submitinimo:
    textareaEl.value = '';
 
@@ -93,3 +72,40 @@ const submitHandler = (event) => {
 }
 
 formEl.addEventListener('submit', submitHandler);
+
+// -- FEEDBACK LIST COMPONENT --
+fetch('https://bytegrad.com/course-assets/js/1/api/feedbacks')
+   .then(response => response.json())
+   .then(data => {
+      // panaikinamas spineris, pries gaunant duomenis:
+      spinnerEl.remove();
+      // Pakartoti kiekviena elementa is atsiliepimu masyvo ir pateikti ji sarase:
+      data.feedbacks.forEach(feedbackItem => {
+
+         // Naujas komentaro elementas HTML'e:
+         const feedbackItemHTML = `
+<li class='feedback'>
+<button class='upvote'>
+<i class='fa-solid fa-caret-up upvote__icon'></i>
+<span class='upvote__count'>${feedbackItem.upVoteCount}</span>
+</button>
+
+<section class='feedback__badge'>
+<p class='feedback__letter'>${feedbackItem.badgeLetter}</p>
+</section>
+
+<div class='feedback__content'>
+<p class='feedback__company'>${feedbackItem.companyName}</p>
+<p class='feedback__text'>${feedbackItem.text}</p>
+</div>
+<p class='feedback__date'>${feedbackItem.daysAgo === 0 ? 'NEW' : `${feedbackItem.daysAgo}d`}</p>
+</li>
+`;
+
+         // Naujo komentaro iterpimas i sarasa:
+         feedbackListEl.insertAdjacentHTML('beforeend', feedbackItemHTML);
+      });
+   })
+   .catch(error => {
+      feedbackListEl.textContent = `Failed to fetch feedback items. Erroe message: ${error.message}`;
+   })
