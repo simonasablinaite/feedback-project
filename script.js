@@ -1,5 +1,6 @@
 // -- GLOBAL --
 const MAX_CHARS = 150;
+const BASE_API_URL = 'https://bytegrad.com/course-assets/js/1/api';
 
 const textareaEl = document.querySelector('.form__textarea');
 const counterEl = document.querySelector('.counter');
@@ -7,6 +8,31 @@ const formEl = document.querySelector('.form');
 const feedbackListEl = document.querySelector('.feedbacks');
 const submitBtntEl = document.querySelector('.submit-btn');
 const spinnerEl = document.querySelector('.spinner');
+
+const renderFeedbackItem = feedbackItem => {
+   // Naujas komentaro elementas HTML'e:
+   const feedbackItemHTML = `
+<li class='feedback'>
+<button class='upvote'>
+<i class='fa-solid fa-caret-up upvote__icon'></i>
+<span class='upvote__count'>${feedbackItem.upVoteCount}</span>
+</button>
+
+<section class='feedback__badge'>
+<p class='feedback__letter'>${feedbackItem.badgeLetter}</p>
+</section>
+
+<div class='feedback__content'>
+<p class='feedback__company'>${feedbackItem.companyName}</p>
+<p class='feedback__text'>${feedbackItem.text}</p>
+</div>
+<p class='feedback__date'>${feedbackItem.daysAgo === 0 ? 'NEW' : `${feedbackItem.daysAgo}d`}</p>
+</li>
+`;
+
+   // Naujo komentaro iterpimas i sarasa:
+   feedbackListEl.insertAdjacentHTML('beforeend', feedbackItemHTML);
+};
 
 // -- COUNTER COMPONENT --
 const inputHandler = () => {
@@ -61,6 +87,34 @@ const submitHandler = (event) => {
    const upVoteCount = 0;
    const daysAgo = 0;
 
+   // Sukuriamas komentaru elemento objektas ir pateikiami atsiliepimu elementai
+   const feedbackItem = {
+      upVoteCount,
+      companyName,
+      badgeLetter,
+      daysAgo,
+      text
+   };
+
+   renderFeedbackItem(feedbackItem);
+
+   // Issiunciamas komentaro elementas i serveri:
+   fetch(`${BASE_API_URL}/feedbacks`, { // POST 
+      method: 'POST',
+      body: JSON.stringify(feedbackItem),
+      headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json'
+      }
+   }).then(response => {
+      if (!response.ok) {
+         console.log('Something went wrong');
+         return;
+      }
+      console.log('Successfully submitted');
+   }).catch(error => console.log(error));
+
+
    // Textarea laukelio isvalymas po submitinimo:
    textareaEl.value = '';
 
@@ -74,38 +128,19 @@ const submitHandler = (event) => {
 formEl.addEventListener('submit', submitHandler);
 
 // -- FEEDBACK LIST COMPONENT --
-fetch('https://bytegrad.com/course-assets/js/1/api/feedbacks')
+fetch(`${BASE_API_URL}/feedbacks`) // GET request
    .then(response => response.json())
    .then(data => {
       // panaikinamas spineris, pries gaunant duomenis:
       spinnerEl.remove();
+
       // Pakartoti kiekviena elementa is atsiliepimu masyvo ir pateikti ji sarase:
       data.feedbacks.forEach(feedbackItem => {
-
          // Naujas komentaro elementas HTML'e:
-         const feedbackItemHTML = `
-<li class='feedback'>
-<button class='upvote'>
-<i class='fa-solid fa-caret-up upvote__icon'></i>
-<span class='upvote__count'>${feedbackItem.upVoteCount}</span>
-</button>
-
-<section class='feedback__badge'>
-<p class='feedback__letter'>${feedbackItem.badgeLetter}</p>
-</section>
-
-<div class='feedback__content'>
-<p class='feedback__company'>${feedbackItem.companyName}</p>
-<p class='feedback__text'>${feedbackItem.text}</p>
-</div>
-<p class='feedback__date'>${feedbackItem.daysAgo === 0 ? 'NEW' : `${feedbackItem.daysAgo}d`}</p>
-</li>
-`;
-
-         // Naujo komentaro iterpimas i sarasa:
-         feedbackListEl.insertAdjacentHTML('beforeend', feedbackItemHTML);
+         renderFeedbackItem(feedbackItem);
       });
+
    })
    .catch(error => {
       feedbackListEl.textContent = `Failed to fetch feedback items. Erroe message: ${error.message}`;
-   })
+   });
