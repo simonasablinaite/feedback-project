@@ -89,17 +89,17 @@ const submitHandler = (event) => {
 
    // Sukuriamas komentaru elemento objektas ir pateikiami atsiliepimu elementai
    const feedbackItem = {
-      upVoteCount,
-      companyName,
-      badgeLetter,
-      daysAgo,
-      text
+      upvoteCount: upVoteCount,
+      company: companyName,
+      badgeLetter: badgeLetter,
+      daysAgo: daysAgo,
+      text: text
    };
 
    renderFeedbackItem(feedbackItem);
 
    // Issiunciamas komentaro elementas i serveri:
-   fetch(`${BASE_API_URL}/feedbacks`, { // POST 
+   fetch(`${BASE_API_URL}/feedbacks`, {
       method: 'POST',
       body: JSON.stringify(feedbackItem),
       headers: {
@@ -111,6 +111,7 @@ const submitHandler = (event) => {
          console.log('Something went wrong');
          return;
       }
+
       console.log('Successfully submitted');
    }).catch(error => console.log(error));
 
