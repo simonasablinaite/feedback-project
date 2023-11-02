@@ -8,6 +8,7 @@ const formEl = document.querySelector('.form');
 const feedbackListEl = document.querySelector('.feedbacks');
 const submitBtntEl = document.querySelector('.submit-btn');
 const spinnerEl = document.querySelector('.spinner');
+const hashtagListEl = document.querySelector('.hashtags');
 
 const renderFeedbackItem = feedbackItem => {
    // Naujas komentaro elementas HTML'e:
@@ -175,3 +176,31 @@ fetch(`${BASE_API_URL}/feedbacks`) // GET request
    .catch(error => {
       feedbackListEl.textContent = `Failed to fetch feedback items. Erroe message: ${error.message}`;
    });
+
+// HASHTAG LIST COMPONENT
+const clickHandler2 = event => {
+   // Gauti paspausta elementa:
+   const clickedEl = event.target;
+
+   // Sustabdyti funkcija, jei ivyko paspaudimas isoriniu mygtuku sarase:
+   if (clickedEl.className === 'hashtags') return;
+
+   // Istraukiamas imones pavadinimas is hashtago:
+   const companyNameFromHashtag = clickedEl.textContent.substring(1).toLowerCase().trim();
+
+   // Pereiti per visus sarase esancius elementus:
+   feedbackListEl.childNodes.forEach(childNode => {
+      // Sustabdoma sunkcijos iteracija, jei text yra node:
+      if (childNode.nodeType === 3) return;
+
+      // Istraukiamas imones pavadinimas is saraso:
+      const companyNameFromFeedbackItem = childNode.querySelector('.feedback__company').textContent.toLowerCase().trim();
+
+      // Istrinami komentarai is saraso, kuriu hashtagas ir imopnes pavadinimas nesutampa:
+      if (companyNameFromHashtag !== companyNameFromFeedbackItem) {
+         childNode.remove();
+      }
+   });
+};
+
+hashtagListEl.addEventListener('click', clickHandler2);
