@@ -150,10 +150,7 @@ const clickHandler = event => {
       // Gaunamas siuo metu rodomu balsu skaicius:
       let upvoteCount = +upvoteCountEl.textContent;
 
-      // Padidinamas balas vienu vienetu:
-      upvoteCount += 1;
-
-      // Gaunami balsai:
+      // Pridedamas balsas 1-nu vienetu ir atvaizduojamas ekrane:
       upvoteCountEl.textContent = ++upvoteCount;
    } else {      // Isskleide spusteleta atsiliepimo elementa:
       clickedEl.closest('.feedback').classList.toggle('feedback--expand');
